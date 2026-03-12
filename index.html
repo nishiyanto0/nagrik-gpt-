@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NagrikGPT - AI-Powered Civic Issue Reporting</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-orange: #F97316;
+            --deep-orange: #EA580C;
+            --light-orange: #FB923C;
+            --cream: #FFF7ED;
+            --white: #FFFFFF;
+            --dark: #1C1917;
+            --text-gray: #78716C;
+            --glass-white: rgba(255, 255, 255, 0.65);
+            --glass-border: rgba(255, 255, 255, 0.4);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #FFF7ED 0%, #FFEDD5 30%, #FFF7ED 70%, #FFEDD5 100%);
+            color: var(--dark);
+            min-height: 100vh;
+            position: relative;
+        }
+
+        /* Layered Background Texture */
+        .bg-layer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .gradient-orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(120px);
+            opacity: 0.45;
+        }
+
+        .orb-1 {
+            width: 600px;
+            height: 600px;
+            background: linear-gradient(135deg, #FB923C, #F97316);
+            top: -200px;
+            right: -150px;
+        }
+
+        .orb-2 {
+            width: 500px;
+            height: 500px;
+            background: linear-gradient(135deg, #FDBA74, #FB923C);
+            bottom: -150px;
+            left: -100px;
+        }
+
+        .orb-3 {
+            width: 400px;
+            height: 400px;
+            background: linear-gradient(135deg, #FFEDD5, #FED7AA);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        /* Noise Texture */
+        .noise {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.02;
+            z-index: -1;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+            pointer-events: none;
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 40px 30px;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 35px;
+            position: relative;
+        }
+
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 4rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #EA580C 0%, #F97316 50%, #FB923C 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -2px;
+            margin-bottom: 8px;
+        }
+
+        .tagline {
+            font-size: 1.1rem;
+            color: var(--text-gray);
+            font-weight: 400;
+            max-width: 700px;
+            margin: 0 auto;
+            line-height: 1.5;
+        }
+
+        /* QR Section */
+        .qr-section {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 35px;
+            flex-wrap: wrap;
+        }
+
+        .qr-card {
+            background: var(--glass-white);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 20px 25px;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(249, 115, 22, 0.1);
+        }
+
+        .qr-card h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.1rem;
+            color: var(--dark);
+            margin-bottom: 12px;
+        }
+
+        .qr-placeholder {
+            width: 120px;
+            height: 120px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 16px;
+            margin: 0 auto 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+            overflow: hidden;
+            border: 2px dashed var(--light-orange);
+        }
+
+        .qr-placeholder img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .qr-card p {
+            font-size: 0.85rem;
+            color: var(--text-gray);
+        }
+
+        /* Section Styles */
+        .section-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            color: var(--dark);
+            text-align: center;
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .section-title::after {
+            content: '';
+            display: block;
+            width: 60px;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary-orange), var(--light-orange));
+            margin: 10px auto 0;
+            border-radius: 2px;
+        }
+
+        /* Glass Card Base */
+        .glass-card {
+            background: var(--glass-white);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            box-shadow: 0 8px 32px rgba(249, 115, 22, 0.08);
+        }
+
+        /* Challenge & Solution */
+        .challenge-solution {
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+            margin-bottom: 35px;
+            flex-wrap: wrap;
+        }
+
+        .cs-card {
+            padding: 28px;
+            flex: 1;
+            min-width: 280px;
+            max-width: 450px;
+        }
+
+        .cs-card .icon {
+            font-size: 2.2rem;
+            margin-bottom: 12px;
+        }
+
+        .cs-card h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.4rem;
+            color: var(--dark);
+            margin-bottom: 12px;
+        }
+
+        .cs-card p {
+            color: var(--text-gray);
+            line-height: 1.65;
+            font-size: 0.95rem;
+        }
+
+        /* Workflow Section */
+        .workflow-section {
+            margin-bottom: 35px;
+        }
+
+        .workflow-container {
+            padding: 35px;
+        }
+
+        /* Workflow Flow Diagram */
+        .workflow-flow {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .flow-row {
+            display: flex;
+            justify-content: center;
+            align-items: stretch;
+            gap: 15px;
+            flex-wrap: wrap;
+            width: 100%;
+        }
+
+        .flow-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            border-radius: 18px;
+            padding: 18px;
+            text-align: center;
+            min-width: 160px;
+            max-width: 200px;
+            flex: 1;
+            box-shadow: 0 4px 20px rgba(249, 115, 22, 0.08);
+        }
+
+        .flow-card.highlight {
+            background: linear-gradient(135deg, rgba(249, 115, 22, 0.12), rgba(251, 146, 60, 0.08));
+            border: 1px solid rgba(249, 115, 22, 0.2);
+        }
+
+        .flow-card .icon {
+            font-size: 2rem;
+            margin-bottom: 8px;
+        }
+
+        .flow-card h4 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1rem;
+            color: var(--dark);
+            margin-bottom: 6px;
+        }
+
+        .flow-card p {
+            font-size: 0.8rem;
+            color: var(--text-gray);
+            line-height: 1.4;
+        }
+
+        .flow-card .features-list {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 4px;
+            margin-top: 8px;
+        }
+
+        .flow-card .feature-tag {
+            background: rgba(249, 115, 22, 0.1);
+            color: var(--deep-orange);
+            font-size: 0.7rem;
+            padding: 3px 8px;
+            border-radius: 10px;
+        }
+
+        /* Arrow */
+        .flow-arrow {
+            font-size: 1.5rem;
+            color: var(--primary-orange);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .flow-arrow-down {
+            transform: rotate(90deg);
+            font-size: 1.8rem;
+            padding: 5px 0;
+        }
+
+        /* Impact Section */
+        .impact-section {
+            margin-bottom: 35px;
+        }
+
+        .impact-content {
+            background: linear-gradient(135deg, var(--primary-orange), var(--deep-orange));
+            border-radius: 24px;
+            padding: 32px;
+            text-align: center;
+            color: white;
+            box-shadow: 0 12px 40px rgba(249, 115, 22, 0.25);
+        }
+
+        .impact-content h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+        }
+
+        .impact-content p {
+            font-size: 1rem;
+            line-height: 1.7;
+            max-width: 800px;
+            margin: 0 auto;
+            opacity: 0.95;
+        }
+
+        /* Features Grid */
+        .features-section {
+            margin-bottom: 35px;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 14px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .feature-item {
+            padding: 20px 16px;
+            text-align: center;
+        }
+
+        .feature-item .icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .feature-item h4 {
+            font-size: 0.9rem;
+            color: var(--dark);
+            margin-bottom: 5px;
+        }
+
+        .feature-item p {
+            font-size: 0.75rem;
+            color: var(--text-gray);
+            line-height: 1.4;
+        }
+
+        /* Objective Box */
+        .objective-section {
+            margin-bottom: 35px;
+        }
+
+        .objective-box {
+            padding: 28px;
+            text-align: center;
+        }
+
+        .objective-box h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.4rem;
+            color: var(--dark);
+            margin-bottom: 18px;
+        }
+
+        .objective-list {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .objective-item {
+            background: rgba(249, 115, 22, 0.08);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(249, 115, 22, 0.15);
+            border-radius: 25px;
+            padding: 8px 18px;
+            font-size: 0.85rem;
+            color: var(--dark);
+        }
+
+        /* Future Scope */
+        .future-section {
+            margin-bottom: 30px;
+        }
+
+        .future-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 12px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .future-item {
+            background: rgba(28, 25, 23, 0.92);
+            backdrop-filter: blur(15px);
+            border-radius: 18px;
+            padding: 16px;
+            text-align: center;
+            border: 1px solid rgba(249, 115, 22, 0.25);
+        }
+
+        .future-item h4 {
+            color: var(--light-orange);
+            font-size: 0.85rem;
+            margin-bottom: 5px;
+        }
+
+        .future-item p {
+            color: #A8A29E;
+            font-size: 0.75rem;
+            line-height: 1.4;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding-top: 25px;
+            border-top: 1px solid rgba(249, 115, 22, 0.12);
+        }
+
+        .footer-logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.6rem;
+            color: var(--primary-orange);
+            margin-bottom: 6px;
+        }
+
+        .footer-text {
+            color: var(--text-gray);
+            font-size: 0.85rem;
+        }
+
+        /* Decorative dots */
+        .decorative-dots {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        .dot-orange { background: var(--primary-orange); }
+        .dot-light { background: var(--light-orange); }
+        .dot-green { background: #22C55E; }
+        .dot-blue { background: #3B82F6; }
+
+        /* Print optimization */
+        @media print {
+            body {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            .bg-layer, .noise {
+                display: block;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Background Effects -->
+    <div class="bg-layer">
+        <div class="gradient-orb orb-1"></div>
+        <div class="gradient-orb orb-2"></div>
+        <div class="gradient-orb orb-3"></div>
+    </div>
+    <div class="noise"></div>
+
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1 class="logo">NagrikGPT</h1>
+            <p class="tagline">AI-Powered Civic Issue Reporting Platform — Report issues instantly, track progress in real-time, and build a better community together.</p>
+        </header>
+
+        <!-- QR Codes -->
+        <section class="qr-section">
+            <div class="qr-card glass-card">
+                <h3>📱 Download App</h3>
+                <div class="qr-placeholder">
+                    <img src="QR_app.jpg" alt="Scan to download app" onerror="this.style.display='none'; this.parentElement.innerHTML='📱 QR Code'">
+                </div>
+                <p>Scan for Mobile App</p>
+            </div>
+            <div class="qr-card glass-card">
+                <h3>🌐 Web Access</h3>
+                <div class="qr-placeholder">
+                    <img src="QR_web.jpg" alt="Scan for web access" onerror="this.style.display='none'; this.parentElement.innerHTML='🌐 QR Code'">
+                </div>
+                <p>Scan for Web Portal</p>
+            </div>
+        </section>
+
+        <div class="decorative-dots">
+            <div class="dot dot-orange"></div>
+            <div class="dot dot-light"></div>
+            <div class="dot dot-green"></div>
+            <div class="dot dot-blue"></div>
+        </div>
+
+        <!-- Objective -->
+        <section class="objective-section">
+            <div class="objective-box glass-card">
+                <h3>🎯 Objective</h3>
+                <div class="objective-list">
+                    <span class="objective-item">📋 Easy Reporting with Photos & Location</span>
+                    <span class="objective-item">📊 Real-time Status Tracking</span>
+                    <span class="objective-item">💬 Transparent Communication</span>
+                    <span class="objective-item">✅ Officer Accountability</span>
+                    <span class="objective-item">🗳️ Community Participation</span>
+                    <span class="objective-item">⚡ Faster Resolution</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Challenge & Solution -->
+        <section class="challenge-solution">
+            <div class="cs-card glass-card">
+                <div class="icon">⚠️</div>
+                <h3>The Challenge</h3>
+                <p>Current complaint systems are slow and frustrating. Heavy reliance on manual logs causes delays, and citizens often have no way to track their reports. This lack of transparency leaves issues unresolved and damages trust in local governance.</p>
+            </div>
+            <div class="cs-card glass-card">
+                <div class="icon">💡</div>
+                <h3>The Solution</h3>
+                <p>NagrikGPT connects citizens, administrators, and field officers on one unified platform. It simplifies the workflow, ensuring that complaints are not just heard but actually acted upon with full transparency and accountability.</p>
+            </div>
+        </section>
+
+        <!-- Workflow -->
+        <section class="workflow-section">
+            <h2 class="section-title">How It Works</h2>
+            <div class="workflow-container glass-card">
+                <div class="workflow-flow">
+                    
+                    <!-- Row 1: Citizen Report -->
+                    <div class="flow-row">
+                        <div class="flow-card highlight">
+                            <div class="icon">👤</div>
+                            <h4>Citizen Report</h4>
+                            <p>Submit civic issues easily</p>
+                            <div class="features-list">
+                                <span class="feature-tag">AI Summarization</span>
+                                <span class="feature-tag">AI Profanity Filter</span>
+                                <span class="feature-tag">Geo-Location</span>
+                                <span class="feature-tag">Voice Guide</span>
+                                <span class="feature-tag">Image Upload</span>
+                            </div>
+                        </div>
+                        <div class="flow-arrow">→</div>
+                        <div class="flow-card">
+                            <div class="icon">📡</div>
+                            <h4>Community Feed</h4>
+                            <p>Report visible to all citizens</p>
+                        </div>
+                        <div class="flow-arrow">→</div>
+                        <div class="flow-card highlight">
+                            <div class="icon">👨‍💼</div>
+                            <h4>Admin (Nagar Adhyeksha)</h4>
+                            <p>Receives & assigns to officers</p>
+                        </div>
+                    </div>
+
+                    <div class="flow-arrow flow-arrow-down">→</div>
+
+                    <!-- Row 2: Assignment & Completion -->
+                    <div class="flow-row">
+                        <div class="flow-card">
+                            <div class="icon">👮</div>
+                            <h4>Officer</h4>
+                            <p>Assigns to staff & NSS volunteers</p>
+                        </div>
+                        <div class="flow-arrow">→</div>
+                        <div class="flow-card">
+                            <div class="icon">👷</div>
+                            <h4>Staff / NSS Volunteers</h4>
+                            <p>Complete the assigned task</p>
+                        </div>
+                        <div class="flow-arrow">→</div>
+                        <div class="flow-card">
+                            <div class="icon">📸</div>
+                            <h4>Upload Proof</h4>
+                            <p>Photo proof uploaded to feed</p>
+                        </div>
+                    </div>
+
+                    <div class="flow-arrow flow-arrow-down">→</div>
+
+                    <!-- Row 3: Community Verification -->
+                    <div class="flow-row">
+                        <div class="flow-card highlight">
+                            <div class="icon">✅</div>
+                            <h4>Community Feed Update</h4>
+                            <p>Proof visible under original report</p>
+                        </div>
+                        <div class="flow-arrow">→</div>
+                        <div class="flow-card">
+                            <div class="icon">💬</div>
+                            <h4>Citizen Comments</h4>
+                            <p>Community can comment & verify</p>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- Impact -->
+        <section class="impact-section">
+            <div class="impact-content">
+                <h2>📈 The Impact</h2>
+                <p>By cutting delays and making the process visible, the platform significantly speeds up resolution times. NSS camps from colleges can easily find issues near them without extensive research. It restores accountability and helps rebuild trust between the community and local authorities.</p>
+            </div>
+        </section>
+
+        <!-- Features -->
+        <section class="features-section">
+            <h2 class="section-title">Key Features</h2>
+            <div class="features-grid">
+                <div class="feature-item glass-card">
+                    <div class="icon">🤖</div>
+                    <h4>AI Summarization</h4>
+                    <p>Auto-generate complaint summaries</p>
+                </div>
+                <div class="feature-item glass-card">
+                    <div class="icon">🛡️</div>
+                    <h4>AI Profanity Filter</h4>
+                    <p>Maintain civil communication</p>
+                </div>
+                <div class="feature-item glass-card">
+                    <div class="icon">📍</div>
+                    <h4>Geo-Location</h4>
+                    <p>Auto-detect issue location</p>
+                </div>
+                <div class="feature-item glass-card">
+                    <div class="icon">🎙️</div>
+                    <h4>Voice Guide</h4>
+                    <p>Accessibility for all users</p>
+                </div>
+                <div class="feature-item glass-card">
+                    <div class="icon">📸</div>
+                    <h4>Photo Evidence</h4>
+                    <p>Attach photos to reports</p>
+                </div>
+                <div class="feature-item glass-card">
+                    <div class="icon">🗣️</div>
+                    <h4>Community Feed</h4>
+                    <p>Transparent public updates</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Future Scope -->
+        <section class="future-section">
+            <h2 class="section-title">Future Scope</h2>
+            <div class="future-grid">
+                <div class="future-item">
+                    <h4>🔐 Biometric Login</h4>
+                    <p>Fingerprint/Face ID auth</p>
+                </div>
+                <div class="future-item">
+                    <h4>📱 WhatsApp</h4>
+                    <p>Integration support</p>
+                </div>
+                <div class="future-item">
+                    <h4>🏙️ Multi-City</h4>
+                    <p>Scalable deployment</p>
+                </div>
+                <div class="future-item">
+                    <h4>👥 Full Volunteer Network</h4>
+                    <p>Citizen participation system</p>
+                </div>
+                <div class="future-item">
+                    <h4>📈 Dashboard</h4>
+                    <p>Performance tracking</p>
+                </div>
+                <div class="future-item">
+                    <h4>🔍 Trends</h4>
+                    <p>Issue pattern analysis</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="footer-logo">NagrikGPT</div>
+            <p class="footer-text">Bridging the Gap Between Citizens and Government</p>
+        </footer>
+    </div>
+</body>
+</html>
